@@ -1,23 +1,457 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { Checkbox, Select } from "antd";
+import {
+  Col,
+  Divider,
+  Row,
+  Form,
+  Input,
+  Modal,
+  Popconfirm,
+  Button,
+  Table,
+} from "antd";
+import { EditTwoTone } from "@ant-design/icons";
+import { useState, useEffect, useRef, useContext, createContext } from "react";
+
+const style = {
+  // background: "#0092ff",
+  padding: "8px 4px",
+  width: "100%",
+  maxWidth: 300,
+};
 
 function App() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [dataSource, setDataSource] = useState([
+    {
+      Key: "0",
+      Value: "1234567890",
+    },
+  ]);
+  const [count, setCount] = useState(1);
+
+  const EditableContext = createContext(null);
+
+  const defaultColumns = [
+    {
+      title: "Key",
+      dataIndex: "Key",
+      width: "50%",
+      editable: true,
+    },
+    {
+      title: "Value",
+      dataIndex: "Value",
+    },
+    {
+      title: "operation",
+      dataIndex: "operation",
+      render: (_, record) =>
+        dataSource.length >= 1 ? (
+          <Popconfirm
+            title="Sure to delete?"
+            onConfirm={() => handleDelete(record.key)}
+          >
+            <a>Delete</a>
+          </Popconfirm>
+        ) : null,
+    },
+  ];
+
+  const EditableRow = ({ index, ...props }) => {
+    const [form] = Form.useForm();
+    return (
+      <Form form={form} component={false}>
+        <EditableContext.Provider value={form}>
+          <tr {...props} />
+        </EditableContext.Provider>
+      </Form>
+    );
+  };
+  const EditableCell = ({
+    title,
+    editable,
+    children,
+    dataIndex,
+    record,
+    handleSave,
+    ...restProps
+  }) => {
+    const [editing, setEditing] = useState(false);
+    const inputRef = useRef(null);
+    const form = useContext(EditableContext);
+    useEffect(() => {
+      if (editing) {
+        inputRef.current.focus();
+      }
+    }, [editing]);
+    const toggleEdit = () => {
+      setEditing(!editing);
+      form.setFieldsValue({
+        [dataIndex]: record[dataIndex],
+      });
+    };
+    const save = async () => {
+      try {
+        const values = await form.validateFields();
+        toggleEdit();
+        handleSave({
+          ...record,
+          ...values,
+        });
+      } catch (errInfo) {
+        console.log("Save failed:", errInfo);
+      }
+    };
+    let childNode = children;
+    if (editable) {
+      childNode = editing ? (
+        <Form.Item
+          style={{
+            margin: 0,
+          }}
+          name={dataIndex}
+          rules={[
+            {
+              required: true,
+              message: `${title} is required.`,
+            },
+          ]}
+        >
+          <Input ref={inputRef} onPressEnter={save} onBlur={save} />
+        </Form.Item>
+      ) : (
+        <div
+          className="editable-cell-value-wrap"
+          style={{
+            paddingRight: 24,
+          }}
+          onClick={toggleEdit}
+        >
+          {children}
+        </div>
+      );
+    }
+    return <td {...restProps}>{childNode}</td>;
+  };
+
+  const handleDelete = (key) => {
+    const newData = dataSource.filter((item) => item.key !== key);
+    setDataSource(newData);
+  };
+  const handleAdd = () => {
+    const newData = {
+      Key: count,
+      Value: `0000`,
+    };
+    setDataSource([...dataSource, newData]);
+    setCount(count + 1);
+  };
+  const handleSave = (row) => {
+    const newData = [...dataSource];
+    const index = newData.findIndex((item) => row.key === item.key);
+    const item = newData[index];
+    newData.splice(index, 1, {
+      ...item,
+      ...row,
+    });
+    setDataSource(newData);
+  };
+  const components = {
+    body: {
+      row: EditableRow,
+      cell: EditableCell,
+    },
+  };
+  const columns = defaultColumns.map((col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        handleSave,
+      }),
+    };
+  });
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+  const onChange = (value) => {
+    console.log(`selected ${value}`);
+  };
+  const onSearch = (value) => {
+    console.log("search:", value);
+  };
+  const onCheck = (value) => {
+    console.log("check:", value);
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Row
+        gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}
+        style={{ maxWidth: 1000 }}
+      >
+        <Col className="gutter-row" span={8}>
+          <div>
+            <Select
+              style={style}
+              showSearch
+              placeholder="Event Source"
+              optionFilterProp="children"
+              onChange={onChange}
+              onSearch={onSearch}
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={[
+                {
+                  value: "jack",
+                  label: "Jack",
+                },
+                {
+                  value: "lucy",
+                  label: "Lucy",
+                },
+                {
+                  value: "tom",
+                  label: "Tom",
+                },
+              ]}
+            />
+          </div>
+        </Col>
+        <Col className="gutter-row" span={8}>
+          <div>
+            <Select
+              style={style}
+              showSearch
+              placeholder="Source Type"
+              optionFilterProp="children"
+              onChange={onChange}
+              onSearch={onSearch}
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={[
+                {
+                  value: "jack",
+                  label: "Jack",
+                },
+                {
+                  value: "lucy",
+                  label: "Lucy",
+                },
+                {
+                  value: "tom",
+                  label: "Tom",
+                },
+              ]}
+            />
+          </div>
+        </Col>
+        <Col className="gutter-row" span={8}>
+          <div>
+            <Select
+              style={style}
+              showSearch
+              placeholder="Event"
+              optionFilterProp="children"
+              onChange={onChange}
+              onSearch={onSearch}
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={[
+                {
+                  value: "jack",
+                  label: "Jack",
+                },
+                {
+                  value: "lucy",
+                  label: "Lucy",
+                },
+                {
+                  value: "tom",
+                  label: "Tom",
+                },
+              ]}
+            />
+          </div>
+        </Col>
+        <Col className="gutter-row" span={8}>
+          <div>
+            <Select
+              style={style}
+              showSearch
+              placeholder="Milestone"
+              optionFilterProp="children"
+              onChange={onChange}
+              onSearch={onSearch}
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={[
+                {
+                  value: "jack",
+                  label: "Jack",
+                },
+                {
+                  value: "lucy",
+                  label: "Lucy",
+                },
+                {
+                  value: "tom",
+                  label: "Tom",
+                },
+              ]}
+            />
+          </div>
+        </Col>
+        <Col className="gutter-row" span={8}>
+          <div>
+            <Select
+              style={style}
+              showSearch
+              placeholder="Subscriber Type"
+              optionFilterProp="children"
+              onChange={onChange}
+              onSearch={onSearch}
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={[
+                {
+                  value: "jack",
+                  label: "Jack",
+                },
+                {
+                  value: "lucy",
+                  label: "Lucy",
+                },
+                {
+                  value: "tom",
+                  label: "Tom",
+                },
+              ]}
+            />
+          </div>
+        </Col>
+        <Col className="gutter-row" span={8}>
+          <div>
+            <Select
+              style={style}
+              showSearch
+              placeholder="Subscriber Name"
+              optionFilterProp="children"
+              onChange={onChange}
+              onSearch={onSearch}
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              options={[
+                {
+                  value: "jack",
+                  label: "Jack",
+                },
+                {
+                  value: "lucy",
+                  label: "Lucy",
+                },
+                {
+                  value: "tom",
+                  label: "Tom",
+                },
+              ]}
+            />
+          </div>
+        </Col>
+      </Row>
+      <Row>
+        <Divider orientation="left">Notified by</Divider>
+      </Row>
+      <Row>
+        <div className="notifications">
+          <div className="notified_options">Email</div>
+          <div className="notified_options">
+            <EditTwoTone twoToneColor="#a3a3a3" onClick={showModal} />
+          </div>
+          <div className="notified_options">
+            <Checkbox onCheck={onCheck} />
+          </div>
+        </div>
+      </Row>
+      <Row>
+        <div className="notifications">
+          <div className="notified_options">WhatsApp</div>
+          <div className="notified_options">
+            <EditTwoTone twoToneColor="#a3a3a3" onClick={showModal} />
+          </div>
+          <div className="notified_options">
+            <Checkbox onCheck={onCheck} />
+          </div>
+        </div>
+      </Row>
+      <Row>
+        <div className="notifications">
+          <div className="notified_options">TradeChain</div>
+          <div className="notified_options">
+            <EditTwoTone twoToneColor="#a3a3a3" onClick={showModal} />
+          </div>
+          <div className="notified_options">
+            <Checkbox onCheck={onCheck} />
+          </div>
+        </div>
+      </Row>
+      <Row style={{ marginTop: 15 }}>
+        <Button type="primary">Submit</Button>
+      </Row>
+      <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+        <div>
+          <Button
+            onClick={handleAdd}
+            type="primary"
+            style={{
+              marginBottom: 16,
+            }}
+          >
+            Add a row
+          </Button>
+          <Table
+            components={components}
+            rowClassName={() => "editable-row"}
+            bordered
+            dataSource={dataSource}
+            columns={columns}
+          />
+        </div>
+      </Modal>
     </div>
   );
 }
