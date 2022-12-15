@@ -43,6 +43,7 @@ function App() {
     {
       title: "Value",
       dataIndex: "Value",
+      editable: true,
     },
     {
       title: "operation",
@@ -158,12 +159,14 @@ function App() {
     });
     setDataSource(newData);
   };
+
   const components = {
     body: {
       row: EditableRow,
       cell: EditableCell,
     },
   };
+
   const columns = defaultColumns.map((col) => {
     if (!col.editable) {
       return col;
@@ -189,7 +192,6 @@ function App() {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-
   const onChange = (value) => {
     console.log(`selected ${value}`);
   };
@@ -199,259 +201,313 @@ function App() {
   const onCheck = (value) => {
     console.log("check:", value);
   };
-
+  const onFinish = (values) => {
+    console.log("Success:", values);
+  };
+  const onFinishFailed = (errorInfo) => {
+    console.log("Failed:", errorInfo);
+  };
   return (
     <div className="App">
-      <Row
-        gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}
-        style={{ maxWidth: 1000 }}
+      <Form
+        name="basic"
+        layout="vertical"
+        initialValues={{ remember: true }}
+        onFinish={onFinish}
+        onFinishFailed={onFinishFailed}
+        autoComplete="off"
       >
-        <Col className="gutter-row" span={8}>
-          <div>
-            <Select
-              style={style}
-              showSearch
-              placeholder="Event Source"
-              optionFilterProp="children"
-              onChange={onChange}
-              onSearch={onSearch}
-              filterOption={(input, option) =>
-                (option?.label ?? "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-              options={[
+        <Row
+          gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}
+          style={{ maxWidth: 1000 }}
+        >
+          <Col span={8}>
+            <Form.Item
+              label="Event Source"
+              name="eventSource"
+              rules={[
+                { required: true, message: "Please input your Event Source!" },
+              ]}
+            >
+              <Select
+                style={style}
+                showSearch
+                placeholder="Event Source"
+                optionFilterProp="children"
+                onChange={onChange}
+                onSearch={onSearch}
+                filterOption={(input, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={[
+                  {
+                    value: "jack",
+                    label: "Jack",
+                  },
+                  {
+                    value: "lucy",
+                    label: "Lucy",
+                  },
+                  {
+                    value: "tom",
+                    label: "Tom",
+                  },
+                ]}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item
+              label="Source Type"
+              name="sourceType"
+              rules={[
+                { required: true, message: "Please input your Source Type!" },
+              ]}
+            >
+              <Select
+                style={style}
+                showSearch
+                placeholder="Source Type"
+                optionFilterProp="children"
+                onChange={onChange}
+                onSearch={onSearch}
+                filterOption={(input, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={[
+                  {
+                    value: "jack",
+                    label: "Jack",
+                  },
+                  {
+                    value: "lucy",
+                    label: "Lucy",
+                  },
+                  {
+                    value: "tom",
+                    label: "Tom",
+                  },
+                ]}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item
+              label="Event"
+              name="event"
+              rules={[{ required: true, message: "Please input your Event!" }]}
+            >
+              <Select
+                style={style}
+                showSearch
+                placeholder="Event"
+                optionFilterProp="children"
+                onChange={onChange}
+                onSearch={onSearch}
+                filterOption={(input, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={[
+                  {
+                    value: "jack",
+                    label: "Jack",
+                  },
+                  {
+                    value: "lucy",
+                    label: "Lucy",
+                  },
+                  {
+                    value: "tom",
+                    label: "Tom",
+                  },
+                ]}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item
+              label="Milestone"
+              name="milestone"
+              rules={[
+                { required: true, message: "Please input your Milestone!" },
+              ]}
+            >
+              <Select
+                style={style}
+                showSearch
+                placeholder="Milestone"
+                optionFilterProp="children"
+                onChange={onChange}
+                onSearch={onSearch}
+                filterOption={(input, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={[
+                  {
+                    value: "jack",
+                    label: "Jack",
+                  },
+                  {
+                    value: "lucy",
+                    label: "Lucy",
+                  },
+                  {
+                    value: "tom",
+                    label: "Tom",
+                  },
+                ]}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item
+              label="Subscriber Type"
+              name="subscriberType"
+              rules={[
                 {
-                  value: "jack",
-                  label: "Jack",
-                },
-                {
-                  value: "lucy",
-                  label: "Lucy",
-                },
-                {
-                  value: "tom",
-                  label: "Tom",
+                  required: true,
+                  message: "Please input your Subscriber Type!",
                 },
               ]}
-            />
-          </div>
-        </Col>
-        <Col className="gutter-row" span={8}>
-          <div>
-            <Select
-              style={style}
-              showSearch
-              placeholder="Source Type"
-              optionFilterProp="children"
-              onChange={onChange}
-              onSearch={onSearch}
-              filterOption={(input, option) =>
-                (option?.label ?? "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-              options={[
+            >
+              <Select
+                style={style}
+                showSearch
+                placeholder="Subscriber Type"
+                optionFilterProp="children"
+                onChange={onChange}
+                onSearch={onSearch}
+                filterOption={(input, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={[
+                  {
+                    value: "jack",
+                    label: "Jack",
+                  },
+                  {
+                    value: "lucy",
+                    label: "Lucy",
+                  },
+                  {
+                    value: "tom",
+                    label: "Tom",
+                  },
+                ]}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item
+              label="Subscriber Name"
+              name="subscriberName"
+              rules={[
                 {
-                  value: "jack",
-                  label: "Jack",
-                },
-                {
-                  value: "lucy",
-                  label: "Lucy",
-                },
-                {
-                  value: "tom",
-                  label: "Tom",
-                },
-              ]}
-            />
-          </div>
-        </Col>
-        <Col className="gutter-row" span={8}>
-          <div>
-            <Select
-              style={style}
-              showSearch
-              placeholder="Event"
-              optionFilterProp="children"
-              onChange={onChange}
-              onSearch={onSearch}
-              filterOption={(input, option) =>
-                (option?.label ?? "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-              options={[
-                {
-                  value: "jack",
-                  label: "Jack",
-                },
-                {
-                  value: "lucy",
-                  label: "Lucy",
-                },
-                {
-                  value: "tom",
-                  label: "Tom",
+                  required: true,
+                  message: "Please input your Subscriber Name!",
                 },
               ]}
-            />
+            >
+              <Select
+                style={style}
+                showSearch
+                placeholder="Subscriber Name"
+                optionFilterProp="children"
+                onChange={onChange}
+                onSearch={onSearch}
+                filterOption={(input, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={[
+                  {
+                    value: "jack",
+                    label: "Jack",
+                  },
+                  {
+                    value: "lucy",
+                    label: "Lucy",
+                  },
+                  {
+                    value: "tom",
+                    label: "Tom",
+                  },
+                ]}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row>
+          <Divider orientation="left">Notified by</Divider>
+        </Row>
+        <Row>
+          <div className="notifications">
+            <div className="notified_options">Email</div>
+            <div className="notified_options">
+              <EditTwoTone twoToneColor="#a3a3a3" onClick={showModal} />
+            </div>
+            <div className="notified_options">
+              <Checkbox onCheck={onCheck} />
+            </div>
           </div>
-        </Col>
-        <Col className="gutter-row" span={8}>
+        </Row>
+        <Row>
+          <div className="notifications">
+            <div className="notified_options">WhatsApp</div>
+            <div className="notified_options">
+              <EditTwoTone twoToneColor="#a3a3a3" onClick={showModal} />
+            </div>
+            <div className="notified_options">
+              <Checkbox onCheck={onCheck} />
+            </div>
+          </div>
+        </Row>
+        <Row>
+          <div className="notifications">
+            <div className="notified_options">TradeChain</div>
+            <div className="notified_options">
+              <EditTwoTone twoToneColor="#a3a3a3" onClick={showModal} />
+            </div>
+            <div className="notified_options">
+              <Checkbox onCheck={onCheck} />
+            </div>
+          </div>
+        </Row>
+        <Row style={{ marginTop: 15 }}>
+          <Button type="primary">Submit</Button>
+        </Row>
+        <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
           <div>
-            <Select
-              style={style}
-              showSearch
-              placeholder="Milestone"
-              optionFilterProp="children"
-              onChange={onChange}
-              onSearch={onSearch}
-              filterOption={(input, option) =>
-                (option?.label ?? "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-              options={[
-                {
-                  value: "jack",
-                  label: "Jack",
-                },
-                {
-                  value: "lucy",
-                  label: "Lucy",
-                },
-                {
-                  value: "tom",
-                  label: "Tom",
-                },
-              ]}
+            <Button
+              onClick={handleAdd}
+              type="primary"
+              style={{
+                marginBottom: 16,
+              }}
+            >
+              Add a row
+            </Button>
+            <Table
+              components={components}
+              rowClassName={() => "editable-row"}
+              bordered
+              dataSource={dataSource}
+              columns={columns}
             />
           </div>
-        </Col>
-        <Col className="gutter-row" span={8}>
-          <div>
-            <Select
-              style={style}
-              showSearch
-              placeholder="Subscriber Type"
-              optionFilterProp="children"
-              onChange={onChange}
-              onSearch={onSearch}
-              filterOption={(input, option) =>
-                (option?.label ?? "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-              options={[
-                {
-                  value: "jack",
-                  label: "Jack",
-                },
-                {
-                  value: "lucy",
-                  label: "Lucy",
-                },
-                {
-                  value: "tom",
-                  label: "Tom",
-                },
-              ]}
-            />
-          </div>
-        </Col>
-        <Col className="gutter-row" span={8}>
-          <div>
-            <Select
-              style={style}
-              showSearch
-              placeholder="Subscriber Name"
-              optionFilterProp="children"
-              onChange={onChange}
-              onSearch={onSearch}
-              filterOption={(input, option) =>
-                (option?.label ?? "")
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-              options={[
-                {
-                  value: "jack",
-                  label: "Jack",
-                },
-                {
-                  value: "lucy",
-                  label: "Lucy",
-                },
-                {
-                  value: "tom",
-                  label: "Tom",
-                },
-              ]}
-            />
-          </div>
-        </Col>
-      </Row>
-      <Row>
-        <Divider orientation="left">Notified by</Divider>
-      </Row>
-      <Row>
-        <div className="notifications">
-          <div className="notified_options">Email</div>
-          <div className="notified_options">
-            <EditTwoTone twoToneColor="#a3a3a3" onClick={showModal} />
-          </div>
-          <div className="notified_options">
-            <Checkbox onCheck={onCheck} />
-          </div>
-        </div>
-      </Row>
-      <Row>
-        <div className="notifications">
-          <div className="notified_options">WhatsApp</div>
-          <div className="notified_options">
-            <EditTwoTone twoToneColor="#a3a3a3" onClick={showModal} />
-          </div>
-          <div className="notified_options">
-            <Checkbox onCheck={onCheck} />
-          </div>
-        </div>
-      </Row>
-      <Row>
-        <div className="notifications">
-          <div className="notified_options">TradeChain</div>
-          <div className="notified_options">
-            <EditTwoTone twoToneColor="#a3a3a3" onClick={showModal} />
-          </div>
-          <div className="notified_options">
-            <Checkbox onCheck={onCheck} />
-          </div>
-        </div>
-      </Row>
-      <Row style={{ marginTop: 15 }}>
-        <Button type="primary">Submit</Button>
-      </Row>
-      <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-        <div>
-          <Button
-            onClick={handleAdd}
-            type="primary"
-            style={{
-              marginBottom: 16,
-            }}
-          >
-            Add a row
-          </Button>
-          <Table
-            components={components}
-            rowClassName={() => "editable-row"}
-            bordered
-            dataSource={dataSource}
-            columns={columns}
-          />
-        </div>
-      </Modal>
+        </Modal>
+      </Form>
     </div>
   );
 }
