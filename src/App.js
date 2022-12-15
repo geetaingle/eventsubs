@@ -15,21 +15,35 @@ import { EditTwoTone } from "@ant-design/icons";
 import { useState, useEffect, useRef, useContext, createContext } from "react";
 
 const style = {
-  // background: "#0092ff",
   padding: "8px 4px",
   width: "100%",
   maxWidth: 300,
 };
 
+const notifications = [
+  {
+    type: "Email",
+    config: [],
+    isEnable: false,
+  },
+  {
+    type: "WhatsApp",
+    config: [],
+    isEnable: false,
+  },
+  {
+    type: "TradeChain",
+    config: [],
+    isEnable: false,
+  },
+];
+
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [dataSource, setDataSource] = useState([
-    {
-      Key: "0",
-      Value: "1234567890",
-    },
-  ]);
+  const [notifType, setNotifType] = useState("");
+  const [dataSource, setDataSource] = useState([]);
   const [count, setCount] = useState(1);
+  const [notifs, setNotifs] = useState(notifications);
 
   const EditableContext = createContext(null);
 
@@ -141,23 +155,47 @@ function App() {
     const newData = dataSource.filter((item) => item.key !== key);
     setDataSource(newData);
   };
+
   const handleAdd = () => {
     const newData = {
-      Key: count,
+      Key: "Name",
       Value: `0000`,
     };
     setDataSource([...dataSource, newData]);
     setCount(count + 1);
   };
+
   const handleSave = (row) => {
     const newData = [...dataSource];
     const index = newData.findIndex((item) => row.key === item.key);
     const item = newData[index];
+
     newData.splice(index, 1, {
       ...item,
       ...row,
     });
+
     setDataSource(newData);
+
+    let temp = [...notifs];
+
+    switch (notifType) {
+      case "Email":
+        temp[0].config = newData;
+        setNotifs(temp);
+        console.log(notifs);
+        break;
+      case "WhatsApp":
+        temp[1].config = newData;
+        setNotifs(temp);
+        console.log(notifs);
+        break;
+      case "TradeChain":
+        temp[2].config = newData;
+        setNotifs(temp);
+        console.log(notifs);
+        break;
+    }
   };
 
   const components = {
@@ -183,7 +221,10 @@ function App() {
     };
   });
 
-  const showModal = () => {
+  const showModal = (notifData) => {
+    console.log(notifs);
+    setNotifType(notifData.type);
+    setDataSource(notifData.config);
     setIsModalOpen(true);
   };
   const handleOk = () => {
@@ -198,10 +239,29 @@ function App() {
   const onSearch = (value) => {
     console.log("search:", value);
   };
-  const onCheck = (value) => {
-    console.log("check:", value);
+  const onBoxCheck = (notif) => {
+    let temp = [...notifs];
+    console.log(notifs);
+    switch (notif.type) {
+      case "Email":
+        temp[0].isEnable = !temp[0].isEnable;
+        setNotifs(temp);
+        break;
+      case "WhatsApp":
+        temp[1].isEnable = !temp[1].isEnable;
+        setNotifs(temp);
+        break;
+      case "TradeChain":
+        temp[2].isEnable = !temp[2].isEnable;
+        setNotifs(temp);
+        break;
+    }
+    console.log(notif.type);
   };
   const onFinish = (values) => {
+    let temp = [...notifs];
+    temp.map((t, index) => !t.isEnable && delete temp[index]);
+    values.eventNotifications = temp;
     console.log("Success:", values);
   };
   const onFinishFailed = (errorInfo) => {
@@ -451,41 +511,33 @@ function App() {
         <Row>
           <Divider orientation="left">Notified by</Divider>
         </Row>
-        <Row>
-          <div className="notifications">
-            <div className="notified_options">Email</div>
-            <div className="notified_options">
-              <EditTwoTone twoToneColor="#a3a3a3" onClick={showModal} />
-            </div>
-            <div className="notified_options">
-              <Checkbox onCheck={onCheck} />
-            </div>
-          </div>
-        </Row>
-        <Row>
-          <div className="notifications">
-            <div className="notified_options">WhatsApp</div>
-            <div className="notified_options">
-              <EditTwoTone twoToneColor="#a3a3a3" onClick={showModal} />
-            </div>
-            <div className="notified_options">
-              <Checkbox onCheck={onCheck} />
-            </div>
-          </div>
-        </Row>
-        <Row>
-          <div className="notifications">
-            <div className="notified_options">TradeChain</div>
-            <div className="notified_options">
-              <EditTwoTone twoToneColor="#a3a3a3" onClick={showModal} />
-            </div>
-            <div className="notified_options">
-              <Checkbox onCheck={onCheck} />
-            </div>
-          </div>
-        </Row>
+
+        {notifs &&
+          notifs.map((n) => (
+            <Row key={n.type}>
+              <div className="notifications">
+                <div className="notified_options">{n.type}</div>
+                <div className="notified_options">
+                  {n.isEnable ? (
+                    <EditTwoTone
+                      twoToneColor="#a3a3a3"
+                      onClick={() => showModal(n)}
+                    />
+                  ) : (
+                    <EditTwoTone twoToneColor="#a3a3a3" />
+                  )}
+                </div>
+                <div className="notified_options">
+                  <Checkbox onChange={() => onBoxCheck(n)} />
+                </div>
+              </div>
+            </Row>
+          ))}
+
         <Row style={{ marginTop: 15 }}>
-          <Button type="primary">Submit</Button>
+          <Button type="primary" htmlType="submit">
+            Submit
+          </Button>
         </Row>
         <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
           <div>
